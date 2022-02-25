@@ -20,13 +20,23 @@
             <div class="col-8 p-3">
               <div class="d-flex align-items-center justify-content-center">
                 <color-selector v-if="product.colors.length !== 0" />
-                <input class="form-control mx-3" type="number" min="1" />
+                <input
+                  v-model.number="quantity"
+                  class="form-control mx-3"
+                  type="number"
+                  min="1"
+                />
                 <button
                   class="btn btn-info btn-sm"
                   :disabled="cart === null"
                   @click="addToCart"
                 >
                   Add to Cart
+                  <i
+                    v-show="addToCartLoading"
+                    class="fas fa-spinner fa-spin"
+                  ></i>
+                  <i v-show="addToCartSuccess" class="fas fa-check "></i>
                 </button>
               </div>
             </div>
@@ -61,8 +71,11 @@ export default {
   data() {
     return {
       product: null,
+      quantity: 1,
       loading: true,
       cart: null,
+      addToCartLoading: false,
+      addToCartSuccess: false,
     };
   },
   computed: {
@@ -85,12 +98,16 @@ export default {
     }
   },
   methods: {
-    addToCart() {
-      addItemToCart(this.cart, {
+    async addToCart() {
+      this.addToCartLoading = true;
+      this.addToCartSuccess = false;
+      await addItemToCart(this.cart, {
         product: this.product['@id'],
         color: null,
-        quantity: 1,
+        quantity: this.quantity,
       });
+      this.addToCartLoading = false;
+      this.addToCartSuccess = true;
     },
   },
 };
