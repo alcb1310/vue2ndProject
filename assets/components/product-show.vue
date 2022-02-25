@@ -21,7 +21,11 @@
               <div class="d-flex align-items-center justify-content-center">
                 <color-selector v-if="product.colors.length !== 0" />
                 <input class="form-control mx-3" type="number" min="1" />
-                <button class="btn btn-info btn-sm">
+                <button
+                  class="btn btn-info btn-sm"
+                  :disabled="cart === null"
+                  @click="addToCart"
+                >
                   Add to Cart
                 </button>
               </div>
@@ -39,7 +43,7 @@ import Loading from '@/components/loading.vue';
 import TitleComponent from '@/components/title.vue';
 import ColorSelector from '@/components/color-selector.vue';
 import formatPrice from '@/helpers/format-price.js';
-import { fetchCart } from '@/services/cart-service.js';
+import { fetchCart, addItemToCart } from '@/services/cart-service.js';
 
 export default {
   name: 'ProductShow',
@@ -79,6 +83,15 @@ export default {
     } finally {
       this.loading = false;
     }
+  },
+  methods: {
+    addToCart() {
+      addItemToCart(this.cart, {
+        product: this.product['@id'],
+        color: null,
+        quantity: 1,
+      });
+    },
   },
 };
 </script>
