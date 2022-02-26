@@ -6,15 +6,7 @@
         <title-component text="Shopping Cart" />
         <div class="content p-3">
           <loading v-show="completeCart === null" />
-          <div v-if="completeCart !== null">
-            <div v-for="(cartItem, index) in completeCart.items" :key="index">
-              {{ cartItem.product.name }} {{ cartItem.quantity }}
-              {{ cartItem.color ? cartItem.color.hexColor : '' }}
-            </div>
-            <div v-if="completeCart.items.length === 0">
-              Your cart is empty! Get to shopping
-            </div>
-          </div>
+          <shopping-cart-list v-if="completeCart" :items="completeCart.items" />
         </div>
       </div>
     </div>
@@ -26,12 +18,14 @@ import ShoppingCartMixing from '@/mixins/get-shopping-cart.js';
 import Loading from '@/components/loading';
 import { fetchProductsById } from '@/services/products-service.js';
 import { fetchColors } from '@/services/colors-service.js';
+import ShoppingCartList from '@/components/shopping-cart/index.vue';
 
 export default {
   name: 'ShoppingCart',
   components: {
     TitleComponent,
     Loading,
+    ShoppingCartList,
   },
   mixins: [ShoppingCartMixing],
   data() {
