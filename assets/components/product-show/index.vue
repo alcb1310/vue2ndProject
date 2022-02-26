@@ -18,7 +18,13 @@
               Price: <strong>${{ price }}</strong>
             </div>
             <div class="col-8 p-3">
-              TODO
+              <cart-add-controls
+                :product="product"
+                :allow-add-to-cart="cart !== null"
+                :add-to-cart-loading="addToCartLoading"
+                :add-to-cart-success="addToCartSuccess"
+                @add-to-cart="addToCart"
+              />
             </div>
           </div>
         </div>
@@ -33,12 +39,14 @@ import Loading from '@/components/loading.vue';
 import TitleComponent from '@/components/title.vue';
 import formatPrice from '@/helpers/format-price.js';
 import ShoppingCartMixin from '@/mixins/get-shopping-cart.js';
+import CartAddControls from '@/components/product-show/cart-add-controls';
 
 export default {
   name: 'ProductShow',
   components: {
     Loading,
     TitleComponent,
+    CartAddControls,
   },
   mixins: [ShoppingCartMixin],
   props: {
@@ -70,11 +78,8 @@ export default {
     }
   },
   methods: {
-    addToCart() {
-      this.addProductToCart(this.product, this.selectedColorId, this.quantity);
-    },
-    updateSelectedColor(iri) {
-      this.selectedColorId = iri;
+    addToCart({ quantity, selectedColorId }) {
+      this.addProductToCart(this.product, selectedColorId, quantity);
     },
   },
 };

@@ -60,6 +60,17 @@ export default {
       required: true,
     },
   },
+  methods: {
+    updateSelectedColor(iri) {
+      this.selectedColorId = iri;
+    },
+    addToCart() {
+      this.$emit('add-to-cart', {
+        quantity: this.quantity,
+        selectedColorId: this.selectedColorId,
+      });
+    },
+  },
 };
 </script>
 
