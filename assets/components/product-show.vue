@@ -19,7 +19,10 @@
             </div>
             <div class="col-8 p-3">
               <div class="d-flex align-items-center justify-content-center">
-                <color-selector v-if="product.colors.length !== 0" />
+                <color-selector
+                  v-if="product.colors.length !== 0"
+                  @color-selected="updateSelectedColor"
+                />
                 <input
                   v-model.number="quantity"
                   class="form-control mx-3"
@@ -76,6 +79,7 @@ export default {
       cart: null,
       addToCartLoading: false,
       addToCartSuccess: false,
+      selectedColorId: null,
     };
   },
   computed: {
@@ -99,15 +103,23 @@ export default {
   },
   methods: {
     async addToCart() {
+      if (this.product.colors.length !== 0 && this.selectedColorId === null) {
+        alert('Please select a color first');
+
+        return;
+      }
       this.addToCartLoading = true;
       this.addToCartSuccess = false;
       await addItemToCart(this.cart, {
         product: this.product['@id'],
-        color: null,
+        color: this.selectedColorId,
         quantity: this.quantity,
       });
       this.addToCartLoading = false;
       this.addToCartSuccess = true;
+    },
+    updateSelectedColor(iri) {
+      this.selectedColorId = iri;
     },
   },
 };
