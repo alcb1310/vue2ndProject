@@ -56,7 +56,7 @@ import Loading from '@/components/loading.vue';
 import TitleComponent from '@/components/title.vue';
 import ColorSelector from '@/components/color-selector.vue';
 import formatPrice from '@/helpers/format-price.js';
-import { fetchCart, addItemToCart } from '@/services/cart-service.js';
+import ShoppingCartMixin from '@/mixins/get-shopping-cart.js';
 
 export default {
   name: 'ProductShow',
@@ -65,6 +65,7 @@ export default {
     TitleComponent,
     ColorSelector,
   },
+  mixins: [ShoppingCartMixin],
   props: {
     productId: {
       type: String,
@@ -76,9 +77,6 @@ export default {
       product: null,
       quantity: 1,
       loading: true,
-      cart: null,
-      addToCartLoading: false,
-      addToCartSuccess: false,
       selectedColorId: null,
     };
   },
@@ -92,9 +90,6 @@ export default {
     },
   },
   async created() {
-    fetchCart().then((cart) => {
-      this.cart = cart;
-    });
     try {
       this.product = (await fetchOneProduct(this.productId)).data;
     } finally {
@@ -102,21 +97,8 @@ export default {
     }
   },
   methods: {
-    async addToCart() {
-      if (this.product.colors.length !== 0 && this.selectedColorId === null) {
-        alert('Please select a color first');
-
-        return;
-      }
-      this.addToCartLoading = true;
-      this.addToCartSuccess = false;
-      await addItemToCart(this.cart, {
-        product: this.product['@id'],
-        color: this.selectedColorId,
-        quantity: this.quantity,
-      });
-      this.addToCartLoading = false;
-      this.addToCartSuccess = true;
+    addToCart() {
+      this.addProductToCart(this.product, this.selectedColorId, this.quantity);
     },
     updateSelectedColor(iri) {
       this.selectedColorId = iri;
