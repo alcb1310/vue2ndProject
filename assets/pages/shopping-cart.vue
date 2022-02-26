@@ -18,17 +18,26 @@
         />
       </aside>
       <div class="col-xs col-lg-9">
-        <title-component text="Shopping Cart" />
+        <title-component :text="pageTitle" />
         <div class="content p-3">
           <loading v-show="completeCart === null" />
           <shopping-cart-list
-            v-if="completeCart"
+            v-if="completeCart && currentState === 'cart'"
             :items="completeCart.items"
             @update-quantity="updateQuantity"
             @remove-from-cart="
               removeProductFromCart($event.productId, $event.colorId)
             "
           />
+          <checkout-form v-if="completeCart && currentState === 'checkout'" />
+          <div v-if="completeCart && completeCart.items.length > 0">
+            <button class="btn btn-primary" @click="switchState">
+              {{ buttonText }}
+            </button>
+          </div>
+          <div class="transition-testing" v-show="currentState === 'cart'">
+            Testing transitions
+          </div>
         </div>
       </div>
     </div>
@@ -45,6 +54,7 @@ import {
 import { fetchColors } from '@/services/colors-service.js';
 import ShoppingCartList from '@/components/shopping-cart/';
 import CartSideBar from '@/components/shopping-cart/cart-sidebar';
+import CheckoutForm from '@/components/checkout/';
 
 export default {
   name: 'ShoppingCart',
@@ -53,6 +63,7 @@ export default {
     Loading,
     ShoppingCartList,
     CartSideBar,
+    CheckoutForm,
   },
   mixins: [ShoppingCartMixing],
   data() {
@@ -60,9 +71,16 @@ export default {
       products: null,
       colors: null,
       featuredProduct: null,
+      currentState: 'cart',
     };
   },
   computed: {
+    pageTitle() {
+      return this.currentState === 'cart' ? 'Shopping Cart' : 'Checkout';
+    },
+    buttonText() {
+      return this.currentState === 'cart' ? 'Check out >>' : '<< Back';
+    },
     completeCart() {
       if (!this.cart || !this.products || !this.colors) {
         return null;
@@ -85,14 +103,21 @@ export default {
       });
 
       return {
-        items: completeItems,
+        // filter out missing products: they may stil be loading
+        items: completeItems.filter((item) => item.product),
       };
     },
   },
   watch: {
-    cart() {
+    'cart.items.length': function watchCartItemsLength() {
       this.loadProducts();
     },
+    // cart: {
+    //   deep: true,
+    //   handler() {
+    //     this.loadProducts();
+    //   },
+    // },
   },
   async created() {
     this.loadFeaturedProducts();
@@ -109,6 +134,10 @@ export default {
       // ]);
 
       this.products = productsResponse.data['hydra:member'];
+    },
+
+    switchState() {
+      this.currentState = this.currentState === 'cart' ? 'checkout' : 'cart';
     },
 
     async loadFeaturedProducts() {
@@ -135,6 +164,13 @@ export default {
 .component :global {
      .content {
           @include light-component;
+     }
+
+     .transition-testing {
+       transition: opacity 3sec;
+     }
+     .transition-testing.hidden {
+       opacity: 0;
      }
 }
 </style>
