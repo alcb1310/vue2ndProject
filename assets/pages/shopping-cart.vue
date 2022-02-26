@@ -1,7 +1,22 @@
 <template>
   <div :class="[$style.component, 'container-fluid']">
     <div class="row">
-      <aside class="col-xs-12 col-lg-3"></aside>
+      <aside class="col-xs-12 col-lg-3">
+        <cart-side-bar
+          v-if="featuredProduct"
+          :featured-product="featuredProduct"
+          :allow-add-to-cart="cart !== null"
+          :add-to-cart-success="addToCartSuccess"
+          :add-to-cart-loading="addToCartLoading"
+          @add-to-cart="
+            addProductToCart(
+              featuredProduct,
+              $event.selectedColorId,
+              $event.quantity
+            )
+          "
+        />
+      </aside>
       <div class="col-xs col-lg-9">
         <title-component text="Shopping Cart" />
         <div class="content p-3">
@@ -23,9 +38,13 @@
 import TitleComponent from '@/components/title';
 import ShoppingCartMixing from '@/mixins/get-shopping-cart.js';
 import Loading from '@/components/loading';
-import { fetchProductsById } from '@/services/products-service.js';
+import {
+  fetchProductsById,
+  fetchFeaturedProducts,
+} from '@/services/products-service.js';
 import { fetchColors } from '@/services/colors-service.js';
-import ShoppingCartList from '@/components/shopping-cart/index.vue';
+import ShoppingCartList from '@/components/shopping-cart/';
+import CartSideBar from '@/components/shopping-cart/cart-sidebar';
 
 export default {
   name: 'ShoppingCart',
@@ -33,12 +52,14 @@ export default {
     TitleComponent,
     Loading,
     ShoppingCartList,
+    CartSideBar,
   },
   mixins: [ShoppingCartMixing],
   data() {
     return {
       products: null,
       colors: null,
+      featuredProduct: null,
     };
   },
   computed: {
@@ -74,6 +95,7 @@ export default {
     },
   },
   async created() {
+    this.loadFeaturedProducts();
     this.colors = (await fetchColors()).data['hydra:member'];
   },
   methods: {
@@ -87,6 +109,18 @@ export default {
       // ]);
 
       this.products = productsResponse.data['hydra:member'];
+    },
+
+    async loadFeaturedProducts() {
+      const featureProducts = (await fetchFeaturedProducts()).data[
+        'hydra:member'
+      ];
+
+      if (featureProducts.length === 0) {
+        return;
+      }
+
+      [this.featuredProduct] = featureProducts;
     },
 
     updateQuantity({ productId, colorId, quantity }) {
