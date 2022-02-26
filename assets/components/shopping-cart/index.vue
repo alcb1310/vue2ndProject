@@ -4,16 +4,49 @@
       Your cart is empty! Get to shopping!!
     </div>
 
+    <div v-if="items.length">
+      <div class="row p-3">
+        <div class="col-3">
+          Item Name
+        </div>
+        <div class="col-3">
+          Quantity
+        </div>
+        <div class="col-3">
+          Price
+        </div>
+        <div class="col-3">&nbsp;</div>
+      </div>
+    </div>
+
     <shopping-cart-item
-      v-for="(item, index) in items"
-      :key="index"
+      v-for="item in items"
+      :key="item.id"
       :item="item"
+      @update-quantity="
+        $emit('update-quantity', {
+          productId: item.product['@id'],
+          colorId: item.color ? item.color['@id'] : null,
+          quantity: $event.quantity,
+        })
+      "
+      @remove-from-cart="
+        $emit('remove-from-cart', {
+          productId: item.product['@id'],
+          colorId: item.color ? item.color['@id'] : null,
+        })
+      "
     />
+
+    <div class="p-3">
+      Total: <strong>$ {{ totalPrice }}</strong>
+    </div>
   </div>
 </template>
 
 <script>
 import ShoppingCartItem from '@/components/shopping-cart/cart-item.vue';
+import formatPrice from '@/helpers/format-price.js';
 
 export default {
   name: 'ShoppingCartList',
@@ -24,6 +57,17 @@ export default {
     items: {
       type: Array,
       required: true,
+    },
+  },
+  computed: {
+    totalPrice() {
+      let total = 0;
+
+      this.items.forEach((item) => {
+        total += item.product.price * item.quantity;
+      });
+
+      return formatPrice(total);
     },
   },
 };

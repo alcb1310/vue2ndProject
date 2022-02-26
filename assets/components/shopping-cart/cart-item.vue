@@ -1,16 +1,59 @@
 <template>
   <div :class="[$style.component, 'row', 'p-3']">
-    {{ item.product.name }}
+    <div class="col-2">
+      {{ item.product.name }}
+    </div>
+    <div class="col-1">
+      <span
+        v-if="item.color"
+        class="color-square"
+        :style="{
+          backgroundColor: `#${hexColor}`,
+        }"
+      >
+      </span>
+    </div>
+    <div class="col-3">
+      <input
+        type="number"
+        :value="item.quantity"
+        class="form-control"
+        min="1"
+        @input="updateQuantity"
+      />
+    </div>
+    <div class="col-3">${{ totalPrice }}</div>
+    <div class="col-3">
+      <button class="btn btn-info btn-sm" @click="$emit('remove-from-cart')">
+        Remove
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
+import formatPrice from '@/helpers/format-price.js';
 export default {
   name: 'ShoppingCartItem',
   props: {
     item: {
       type: Object,
       required: true,
+    },
+  },
+  computed: {
+    hexColor() {
+      return this.item.color ? this.item.color.hexColor : fff;
+    },
+    totalPrice() {
+      return formatPrice(this.item.product.price * this.item.quantity);
+    },
+  },
+  methods: {
+    updateQuantity(event) {
+      this.$emit('update-quantity', {
+        quantity: parseFloat(event.target.value),
+      });
     },
   },
 };
@@ -20,7 +63,18 @@ export default {
 
 @import '~styles/variables/colors.scss';
 
-.component {
+.component :global {
      border-bottom: 1px solid $light-component-border;
+
+     .color-square {
+          display: inline-block;
+          width: 25px;
+          height: 25px;
+          border-radious: 4px;
+     }
+
+     input {
+          width: 60px;
+     }
 }
 </style>

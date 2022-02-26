@@ -20,7 +20,7 @@
 <script>
 import Catalog from '@/components/catalog';
 import Sidebar from '@/components/sidebar';
-import ProductShow from '@/components/product-show.vue';
+import ProductShow from '@/components/product-show';
 import {
   getCurrentCategoryId,
   getCurrentProductId,

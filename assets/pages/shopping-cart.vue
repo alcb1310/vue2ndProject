@@ -6,7 +6,14 @@
         <title-component text="Shopping Cart" />
         <div class="content p-3">
           <loading v-show="completeCart === null" />
-          <shopping-cart-list v-if="completeCart" :items="completeCart.items" />
+          <shopping-cart-list
+            v-if="completeCart"
+            :items="completeCart.items"
+            @update-quantity="updateQuantity"
+            @remove-from-cart="
+              removeProductFromCart($event.productId, $event.colorId)
+            "
+          />
         </div>
       </div>
     </div>
@@ -40,13 +47,21 @@ export default {
         return null;
       }
 
-      const completeItems = this.cart.items.map((cartItem) => ({
-        product: this.products.find(
-          (product) => product['@id'] === cartItem.product
-        ),
-        color: this.colors.find((color) => color['@id'] === cartItem.color),
-        quantity: cartItem.quantity,
-      }));
+      const completeItems = this.cart.items.map((cartItem) => {
+        const product = this.products.find(
+          (productItem) => productItem['@id'] === cartItem.product
+        );
+        const color = this.colors.find(
+          (colorItem) => colorItem['@id'] === cartItem.color
+        );
+
+        return {
+          id: `${cartItem.product}_${cartItem.color ? cartItem.color : 'none'}`,
+          product,
+          color,
+          quantity: cartItem.quantity,
+        };
+      });
 
       return {
         items: completeItems,
@@ -72,6 +87,10 @@ export default {
       // ]);
 
       this.products = productsResponse.data['hydra:member'];
+    },
+
+    updateQuantity({ productId, colorId, quantity }) {
+      this.updateProductQuantity(productId, colorId, quantity);
     },
   },
 };
