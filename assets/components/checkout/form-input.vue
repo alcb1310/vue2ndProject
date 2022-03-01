@@ -2,7 +2,7 @@
   <div class="form-group">
     <label :for="id" class="col-form-label">{{ label }}: </label>
     <input
-      type="text"
+      :type="type"
       :id="id"
       :name="id"
       :value="value"
@@ -10,6 +10,8 @@
         'form-control': true,
         'is-invalid': !isValid,
       }"
+      @input="$emit('input', $event.target.value)"
+      @blur="$emit('blur', $event)"
     />
     <span v-show="!isValid" class="invalid-feedback">
       {{ errorMessage }}
@@ -41,6 +43,10 @@ export default {
     value: {
       type: String,
       default: '',
+    },
+    type: {
+      type: String,
+      default: 'text',
     },
   },
 };

@@ -33,7 +33,10 @@
                 removeProductFromCart($event.productId, $event.colorId)
               "
             />
-            <checkout-form v-if="completeCart && currentState === 'checkout'" />
+            <checkout-form
+              v-if="completeCart && currentState === 'checkout'"
+              :cart="cart"
+            />
           </transition>
           <div v-if="completeCart && completeCart.items.length > 0">
             <button class="btn btn-primary" @click="switchState">
